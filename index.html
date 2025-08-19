@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Lung Screening</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🩺</div>
+            <h1>Smart Lung Screening</h1>
+            <p>An intelligent screening tool leveraging deep learning for early-stage analysis of lung CT scans. Upload an image to begin.</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <form id="upload-form" action="/predict" method="post" enctype="multipart/form-data">
+                    <label for="file-upload" class="custom-file-upload">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <span>Choose Image</span>
+                    </label>
+                    <input id="file-upload" type="file" name="file" accept="image/*" required>
+                    <span id="file-name" class="file-name-display">No file chosen</span>
+                    <button type="submit" class="predict-btn">Analyze Image</button>
+                </form>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% if prediction %}
+            <div class="result-section">
+                <h2>Analysis Complete</h2>
+                <div class="result-card">
+                    <div class="image-container">
+                        <img src="{{ image_path }}" alt="Uploaded Image" class="uploaded-image">
+                    </div>
+                    <div class="result-text">
+                        <p>Prediction:</p>
+                        <h3 class="prediction-{{ prediction | lower | replace(' ', '-') }}">{{ prediction }}</h3>
+                        <div class="confidence-bar-container">
+                            <div class="confidence-bar" style="width: {{ confidence | replace('%', '') }}%;"></div>
+                        </div>
+                        <p class="confidence">Confidence: <strong>{{ confidence }}</strong></p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+
+        <footer>
+            <p>This tool is for informational purposes only and is not a substitute for professional medical advice.</p>
+        </footer>
+    </div>
+    <script>
+        document.getElementById('file-upload').onchange = function () {
+            const fileName = this.files[0] ? this.files[0].name : "No file chosen";
+            document.getElementById('file-name').textContent = fileName;
+        };
+    </script>
+</body>
+</html>
